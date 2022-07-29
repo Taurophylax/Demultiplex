@@ -1,0 +1,133 @@
+~Output~
+R1_<index> x 24
+R2_<index> x 24
+R1_unmatched
+R2_unmatched
+R1_unknown
+R2_unknown
+Stats
+
+~Input~
+R1 (R1.fq.gz)
+i1 (R2.fq.gz)
+i2 (R3.fq.gz)
+R2 (R4.fq.gz)
+
+~File Contents~
+R1_<index>: contains records for all R1 reads where i1 == reverse_compliment(i2) for <index>
+	- include i1-i2 in header and reverse compliment i2
+R2_<index>: contains records for all R2 reads where i1 == reverse_compliment(i2) for <index>
+	- include i1-i2 in header and reverse compliment i2
+R1_unmatched: contains records for all R1 reads where i1 != reverse_compliment(i2)
+	- include i1-i2 in header and reverse compliment i2
+R2_unmatched: contains records for all R2 reads where i1 != reverse_compliment(i2)
+	- include i1-i2 in header and reverse compliment i2
+R1_unknown: contains records for all R1 reads where i1 contains "N" or a low quality read (TBD)
+	- include i1-i2 in header and reverse compliment i2
+R2_unknown: contains records for all R2 reads where i2 contains "N" or a low quality read (TBD)
+	- include i1-i2 in header and reverse compliment i2
+Stats: Report # records with matching pairs, # records with unmatched(hopped), # records with bad indexes
+	- possibly just get len() with readlines()? Will it break?!
+
+
+~Variable Prep~
+
+	Globals
+		indexes = [GTAGCGTA,CGATCGAT,GATCAAGG,AACAGCGA,TAGCCATG,CGGTAATC,
+				 CTCTGGAT,TACCGGAT,CTAGCTCA,CACTTCAC,GCTACTCT,ACGATCAG,
+				 TATGGCAC,TGTTCCGT,GTCCTAAG,TCGACAAG,TCTTCGAC,ATCATGCG,
+				 ATCGTGGT,TCGAGAGT,TCGGATTC,GATCTTGC,AGAGTCCA,AGGATAGC]
+
+		i1_list = [all, indexes, from, i1, file]
+		i2_list = [all, indexes, from, i2, file]
+
+		in files:
+			in_path = "/projects/bgmp/shared/2017_sequencing/"
+			in_R1file = "1294_S1_L008_R1_001.fastq.gz"
+			in_i1file = "1294_S1_L008_R2_001.fastq.gz"
+			in_i2file = "1294_S1_L008_R3_001.fastq.gz"
+			in_R2file = "1294_S1_L008_R4_001.fastq.gz"
+			----Remember to open as "rt" with gzip()
+		out files:
+			out_R1_1 = "R1_" + index[0] + ".fq"
+			...
+			out_R2_23 = "R2_" + index[23].fq + ".fq"
+			out_R1_hopped = "R1_hopped.fq"
+			out_R2_hopped = "R2_hopped.fq"
+			out_R1_unknown = "R1_unknown.fq"
+			out_R1_unknown = "R2_unknown.fq"
+			out_stats = "stats.tsv"
+
+	Locals
+		r1index = get sequence line in record (n) of index1 file 
+		r2index = get sequence line in record (n) of index2 file
+		r1record = list[header,sequence,+,quality]
+		r2record = list[header,sequence,+,quality]
+		linenum = line number
+		recnum = record number
+
+
+~Pseudocode~
+
+	Predefine global variables
+
+recnum = 1
+getrecord(recnum)
+	open r1 file
+		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
+			set r1record dictionary by key:value for each line in record
+	open i1 file 
+		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
+			set r1index dictionary by key:value for each line in record	
+	open i2 file 
+		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
+			set r2index dictionary by key:value for each line in record	
+	open r4 file 
+		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
+			set r4record dictionary by key:value for each line in record
+close all
+			
+
+compare i1 with the reverse compliment of i2
+if i1 == i2 
+	put r1record in r1_i1 file
+		append index pair to header
+	put r2record in r2_i2 file
+		appead index pair to header
+if i1 != i2
+	if i1 or i2 contains "N"
+		put r1record in r1_unknown
+			append index pair to header
+		put r2record in r2_unknown
+			append index pair to header
+	elif i1 is in i2_list[]
+		get fullrecord at i2_list[]
+			put r1record in r1_unmatched
+				append index pair to header
+			put fullrecord in r2_unmatched
+				append index pair to header
+	elif i1 is not in i2_list
+			put r1record in r1_unknown
+				append index pair to header
+			put r2record in r2_unknown
+				append index pair to header
+
+recnum++
+getrecord(recnum)
+
+count lines in each file / 4
+gather mean and other stats in all files
+output stats to stats.tsv
+
+
+
+
+
+
+
+
+
+
+
+
+
