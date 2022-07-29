@@ -16,9 +16,19 @@ zcat (file) | head -2 | tail -1 | wc
 
 
 2. Per-base NT distribution
-    1. Use markdown to insert your 4 histograms here.
-    2. **YOUR ANSWER HERE**
-    3. **YOUR ANSWER HERE**
+
+
+![R1](plotR1.png)
+![R2](plotR2.png)
+![R3](plotR3.png)
+![R4](plotR4.png)
+
+
+   3. For R1, the reads were good so 38 seems like a good cutoff. For R2, the quality is a bit lower but still in the high 30's, so 38 seems fair again. For index 1 and index 2, they increase over time and are all over 30. I would say 30 is a cutoff and could potentially use all of the index data. 
+    
+   4. zcat "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz" | sed -n '/^@/{n;p;}' | awk '/N/ {count++} END{print count}'
+
+
     
 ## Part 2
 1. Define the problem
