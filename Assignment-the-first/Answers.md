@@ -33,11 +33,40 @@ Total: 7304664
     
 ## Part 2
 1. Define the problem
+```
+Reads are contained in the file ordered by X,Y location from the flowcell and not by indexes.
+All indexes are included, even if they are bad reads or hopped.
+All reads, regardless of index, are in 2 files (R1 and R4)
+```
 2. Describe output
+```
+We want to output:
+   the reads with their index pair in the header mapped to an seperate read file for each index (24 * 2)
+   the hopped/unmatched indexes in to a seperate file (2 files)
+   the unknown indexes in to a seperate file (2 files)
+```
 3. Upload your [4 input FASTQ files](../TEST-input_FASTQ) and your [>=6 expected output FASTQ files](../TEST-output_FASTQ).
+```
+Done
+```
 4. Pseudocode
+```
+Done
+```
 5. High level functions. For each function, be sure to include:
     1. Description/doc string
-    2. Function headers (name and parameters)
-    3. Test examples for individual functions
-    4. Return statement
+```
+Done
+```
+   2. Function headers (name and parameters)
+```
+Done
+```
+   3. Test examples for individual functions
+```
+Done
+```
+   4. Return statement
+```
+Done
+```
