@@ -30,16 +30,17 @@ Stats: Report # records with matching pairs, # records with unmatched(hopped), #
 	- possibly just get len() with readlines()? Will it break?!
 
 
-~Variable Prep~
+~Variable Prep~  What variables, lists, and dictionaries will we need?
 
 	Globals
+		recordcount = how many records in the file? = wc -l / 4
 		indexes = [GTAGCGTA,CGATCGAT,GATCAAGG,AACAGCGA,TAGCCATG,CGGTAATC,
 				 CTCTGGAT,TACCGGAT,CTAGCTCA,CACTTCAC,GCTACTCT,ACGATCAG,
 				 TATGGCAC,TGTTCCGT,GTCCTAAG,TCGACAAG,TCTTCGAC,ATCATGCG,
 				 ATCGTGGT,TCGAGAGT,TCGGATTC,GATCTTGC,AGAGTCCA,AGGATAGC]
 
 		i1_list = [all, indexes, from, i1, file]
-		i2_list = [all, indexes, from, i2, file]
+		i2_list = [all, indexes, from, i2, file].reversecomp()
 
 		in files:
 			in_path = "/projects/bgmp/shared/2017_sequencing/"
@@ -58,66 +59,76 @@ Stats: Report # records with matching pairs, # records with unmatched(hopped), #
 			out_R1_unknown = "R2_unknown.fq"
 			out_stats = "stats.tsv"
 
-	Locals
+	Locals/Temp
 		r1index = get sequence line in record (n) of index1 file 
 		r2index = get sequence line in record (n) of index2 file
-		r1record = list[header,sequence,+,quality]
-		r2record = list[header,sequence,+,quality]
+		r1record = dict[header,sequence,+,quality]
+		r2record = dict[header,sequence,+,quality]
 		linenum = line number
 		recnum = record number
 
 
-~Pseudocode~
+~Pseudocode~ (not Sudoku)
 
 	Predefine global variables
 
 recnum = 1
-getrecord(recnum)
-	open r1 file
-		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
+getrecord(recnum) -> int
+	open in_r1 file -> read 1
+		at recnum 1 which is line number = (1+((recnum*4)-4)
 			set r1record dictionary by key:value for each line in record
-	open i1 file 
+	open in_i1 file -> index 1
 		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
-			set r1index dictionary by key:value for each line in record	
-	open i2 file 
+			set r1index to line 2 in record	
+	open in_i2 file -> index 2
 		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
-			set r2index dictionary by key:value for each line in record	
-	open r4 file 
+			set r2index to line 2 in record	
+	open in_r2 file -> read 2
 		at recnum 1 which is (1+((recnum*4)-4) = line number at start of record)
-			set r4record dictionary by key:value for each line in record
-close all
+			set r2record dictionary by key:value for each line in record
+	close all
+	return(r1record, r1index, r2index, r2record)
 			
-
-compare i1 with the reverse compliment of i2
-if i1 == i2 
-	put r1record in r1_i1 file
-		append index pair to header
-	put r2record in r2_i2 file
-		appead index pair to header
-if i1 != i2
-	if i1 or i2 contains "N"
-		put r1record in r1_unknown
+compareindex(i1, i2) -> str
+	if i1 == i2 && i1 and i2 in indexes[] at [x] (known indexes)
+		put r1record in r1_index[x].fq file
 			append index pair to header
-		put r2record in r2_unknown
-			append index pair to header
-	elif i1 is in i2_list[]
-		get fullrecord at i2_list[]
-			put r1record in r1_unmatched
-				append index pair to header
-			put fullrecord in r2_unmatched
-				append index pair to header
-	elif i1 is not in i2_list
+		put r2record in r1_index[x].fq file
+			appead index pair to header
+	if i1 != i2
+		if i1 or i2 contains "N"
 			put r1record in r1_unknown
 				append index pair to header
 			put r2record in r2_unknown
 				append index pair to header
+		elif i1 is in i2_list[]
+			get fullrecord at i2_list[]
+				put r1record in r1_unmatched
+					append index pair to header
+				put fullrecord in r2_unmatched
+					append index pair to header
+		elif i1 is not in i2_list
+				put r1record in r1_unknown
+					append index pair to header
+				put r2record in r2_unknown
+					append index pair to header
+	return
 
-recnum++
-getrecord(recnum)
+stats() -> no param no return
+	count records in all matched files (line count / 4)
+	count records in all unmatched/hopped files (line count / 4)
+	count records in all unknown files (line count / 4)
+	output stats to stats.tsv
 
-count lines in each file / 4
-gather mean and other stats in all files
-output stats to stats.tsv
+for i in recordcount:
+	recnum++
+	r1record, r1index, r2index, r2record = getrecord(recnum)  #get the records from the files
+	compareindex(r1record, r1index, r2index, r2record)  #compare the indexes and append to files
+
+stats()
+print DONE!
+
+
 
 
 
