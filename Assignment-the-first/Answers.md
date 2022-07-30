@@ -24,7 +24,7 @@ zcat (file) | head -2 | tail -1 | wc
 ![R4](plotR4.png)
 
 
-   3. For R1, the reads were good so 38 seems like a good cutoff. For R2, the quality is a bit lower but still in the high 30's, so 38 seems fair again. For index 1 and index 2, they increase over time and are all over 30. I would say 30 is a cutoff and could potentially use all of the index data. 
+   3. For R1, the reads were good so 36 seems like a good cutoff. If anything fell below 36 for no good reason, I would not include it. For example, the read quality diminishes over time and gets close to 36 towards the end of the read (position 90+) and the last couple of nucleotides drop below 36 in R4. For index 1 and index 2, they increase over time and are all over 30, so they aren't terrible, but I would say 36 is a goal to obtain. However, given the data we have, we could potentially use all of the index data by finding confidence scores between an index pair. For example: NAGTTCATC and CAGTTCATN, we could fill in the N-ends with its sister index's end and be pretty confident that they are the same index. 
     
    4. zcat "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz" | sed -n '/^@/{n;p;}' | awk '/N/ {count++} END{print count}'
 R2: 3976613
