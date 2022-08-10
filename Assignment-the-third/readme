@@ -1,0 +1,36 @@
+Demultiplex (demux.py)
+
+Uses libraries: gzip, re, argparse, matplotlib, os
+
+Script does the following in this order:
+
+    1. Takes in 5 fastq.gz files in this order: Read 1, Index 1, Index 2, Read 2, Index List
+    2. Reads all 5 files line by line, pulling out records
+    3. Reverse compliments Index 2
+    4. Attempts to repair up to 2 "N" reads in both indexes using its pair as a reference
+            - Does nothing if more than 2 N's exist (meaning the read quality is too low)
+            - Does nothing if both indexes contain N at the same position (Example: ATCNG -> ATCNG) = goes to unknown
+    5. If any N's remain after repair, it sends both associated reads to "R1_unknown.fq.gz" and "R2_unknown.fq.gz", respectively.
+    6. If indexes are valid and matching pair - sends the record to the appropriate matched file
+    7. If indexes are valid but not matching - sends record to the appropriate hopped file
+    8. If indexes are not valid - sends to unknown
+    9. Once all records have been distributed, move to gather stats
+    11. Creates bar plot for each category
+    12. Creates pie chart of same category
+
+Run with 'python demux.py -i dir/file1.fq.gz dir/file2.fq.gz dir/file3.fq.gz dir/file4.fq.gz dir/file5.fq.gz
+
+Output Example: 
+OUT/R1_ATGC.fq.gz
+OUT/R2_ATGC.fq.gz
+OUT/R1_hopped.fq.gz
+OUT/R2_hopped.fq.gz
+OUT/R1_unknown.fq.gz
+OUT/R2_unknown.fq.gz
+stats.tsv
+counts.png
+ratios.png
+
+Input Files:
+R1, R2, I1, I2: Must be gzipped FastQ files
+Index List - Any text file. First line (header) is ignored. 1 index per line. 
